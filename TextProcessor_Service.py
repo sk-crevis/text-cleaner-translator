@@ -1,5 +1,5 @@
 # ======================================================================
-# Text Processor Service v7.9 (Stable) - StartUp Enabled
+# Text Processor Service v7.9 (Stable) - Restored Icon
 # ======================================================================
 
 import tkinter as tk
@@ -19,7 +19,7 @@ import keyboard
 from PIL import Image, ImageDraw, ImageFont
 import pystray
 
-# ⬇️ 시작 프로그램 등록을 위한 라이브러리 추가
+# ⬇️ 시스템 및 레지스트리 제어를 위한 라이브러리 추가 (유지)
 import sys
 import winreg
 
@@ -103,7 +103,7 @@ class App:
         self.icon = None
         self.is_ready = True
         
-        # ⬇️ 시작 프로그램 등록 로직 호출 추가
+        # 시작 프로그램 등록 로직 호출 (유지)
         if self.is_ready:
             self.register_as_startup()
 
@@ -115,7 +115,9 @@ class App:
     # 시스템 트레이 아이콘
     def create_emoji_icon(self, emoji: str) -> Image:
         width, height = (64, 64)
+        # ⬇️ 원상복구: 배경을 투명(RGBA, (0, 0, 0, 0))으로 되돌림
         image = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        
         draw = ImageDraw.Draw(image)
         font_path = "C:/Windows/Fonts/seguiemj.ttf"
         try:
@@ -134,7 +136,7 @@ class App:
 
         Thread(target=self.setup_hotkey, daemon=True).start()
 
-        image = self.create_emoji_icon("☯️")
+        image = self.create_emoji_icon("🌒") #         
         menu = (pystray.MenuItem('종료', self.quit_app),)
         self.icon = pystray.Icon("TextProcessor", image, "Text Processor", menu)
 
@@ -155,7 +157,7 @@ class App:
     def setup_hotkey(self):
         try:
             keyboard.add_hotkey('ctrl+`', self.on_hotkey_pressed)
-            # 불필요한 keyboard.wait() 제거됨
+            # keyboard.wait() 제거 (유지)
         except Exception as e:
             print(f"[핫키 오류] {e}")
 
@@ -233,7 +235,7 @@ class App:
         self.root.quit()
         os._exit(0)
         
-    # ⬇️ 새로운 메서드: 시작 프로그램 등록
+    # 새로운 메서드: 시작 프로그램 등록 (유지)
     def register_as_startup(self):
         try:
             key = winreg.OpenKey(
@@ -243,7 +245,7 @@ class App:
                 winreg.KEY_SET_VALUE
             )
             
-            # .exe 파일 경로를 얻는 더 안정적인 방법
+            # .exe 파일 경로를 얻는 더 안정적인 방법 (유지)
             if getattr(sys, 'frozen', False):
                 # .exe (PyInstaller)로 실행됨
                 program_path = sys.executable
@@ -253,14 +255,13 @@ class App:
             
             winreg.SetValueEx(
                 key,
-                "TextProcessorService",  # 시작 프로그램에 표시될 이름
+                "TextProcessorService",
                 0,
                 winreg.REG_SZ,
                 f'"{program_path}"'
             )
             winreg.CloseKey(key)
         except Exception:
-            # 등록 권한이 없을 경우를 대비해 조용히 넘어갑니다.
             pass
 
 
