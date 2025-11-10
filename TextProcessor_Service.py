@@ -1,10 +1,10 @@
 # ======================================================================
-# Text Processor Service v7.9 (Stable)
+# Text Processor Service v7.9 (Stable) - StartUp Enabled
 # ======================================================================
 
 import tkinter as tk
 import ttkbootstrap as ttk
-from tkinter.scrolledtext import ScrolledText  # ✅ 기본 Tk 버전 사용
+from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox, simpledialog
 
 import pyperclip
@@ -19,13 +19,17 @@ import keyboard
 from PIL import Image, ImageDraw, ImageFont
 import pystray
 
+# ⬇️ 시작 프로그램 등록을 위한 라이브러리 추가
+import sys
+import winreg
+
 
 # ======================================================================
 # 1. 팝업창 UI 정의
 # ======================================================================
 class PopupWindow(ttk.Toplevel):
     def __init__(self, translated_text, master=None):
-        super().__init__(master=master)  # ✅ themename 제거
+        super().__init__(master=master)
         self.attributes('-topmost', True)
         self.overrideredirect(True)
         self.attributes('-alpha', 0.95)
@@ -43,7 +47,7 @@ class PopupWindow(ttk.Toplevel):
         self.grip = ttk.Frame(self, bootstyle="primary")
         self.grip.pack(fill='x', pady=(1, 0), padx=(1, 1))
 
-        # ✅ inverse 스타일 제거
+        # inverse 스타일 제거
         title = ttk.Label(self.grip, text="  번역 결과 (DeepL)", bootstyle="primary")
         title.pack(side='left', padx=10)
 
@@ -62,7 +66,7 @@ class PopupWindow(ttk.Toplevel):
         text_area = ScrolledText(text_frame, wrap='word', font=("Malgun Gothic", 10))
         text_area.pack(expand=True, fill='both')
         text_area.insert('1.0', translated_text)
-        text_area.configure(state='disabled')  # ✅ 정상 작동 (기본 Tk 버전)
+        text_area.configure(state='disabled')
 
         self.bind_all("<Control-w>", lambda e: self.destroy())
         self.bind_all("<Escape>", lambda e: self.destroy())
@@ -98,6 +102,10 @@ class App:
         self.processing = False
         self.icon = None
         self.is_ready = True
+        
+        # ⬇️ 시작 프로그램 등록 로직 호출 추가
+        if self.is_ready:
+            self.register_as_startup()
 
     def create_dummy_root(self):
         root = ttk.Window()
@@ -126,11 +134,11 @@ class App:
 
         Thread(target=self.setup_hotkey, daemon=True).start()
 
-        image = self.create_emoji_icon("🌵")
+        image = self.create_emoji_icon("☯️")
         menu = (pystray.MenuItem('종료', self.quit_app),)
         self.icon = pystray.Icon("TextProcessor", image, "Text Processor", menu)
 
-        # ✅ pystray를 별도 스레드에서 실행
+        # pystray를 별도 스레드에서 실행
         Thread(target=self.icon.run, daemon=True).start()
         self.root.mainloop()
 
@@ -147,8 +155,7 @@ class App:
     def setup_hotkey(self):
         try:
             keyboard.add_hotkey('ctrl+`', self.on_hotkey_pressed)
-            # ⬇️ 수정된 부분: 불필요한 keyboard.wait() 제거 
-            # keyboard.wait()
+            # 불필요한 keyboard.wait() 제거됨
         except Exception as e:
             print(f"[핫키 오류] {e}")
 
@@ -225,6 +232,36 @@ class App:
             pass
         self.root.quit()
         os._exit(0)
+        
+    # ⬇️ 새로운 메서드: 시작 프로그램 등록
+    def register_as_startup(self):
+        try:
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r"Software\Microsoft\Windows\CurrentVersion\Run",
+                0,
+                winreg.KEY_SET_VALUE
+            )
+            
+            # .exe 파일 경로를 얻는 더 안정적인 방법
+            if getattr(sys, 'frozen', False):
+                # .exe (PyInstaller)로 실행됨
+                program_path = sys.executable
+            else:
+                # .py 파일로 실행됨
+                program_path = os.path.abspath(__file__)
+            
+            winreg.SetValueEx(
+                key,
+                "TextProcessorService",  # 시작 프로그램에 표시될 이름
+                0,
+                winreg.REG_SZ,
+                f'"{program_path}"'
+            )
+            winreg.CloseKey(key)
+        except Exception:
+            # 등록 권한이 없을 경우를 대비해 조용히 넘어갑니다.
+            pass
 
 
 # ======================================================================
