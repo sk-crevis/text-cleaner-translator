@@ -37,11 +37,13 @@ git clone https://github.com/sk-crevis/text-cleaner-translator.git
 
 # 다운로드한 폴더로 이동합니다.
 cd text-cleaner-translator
+
 2. 필수 라이브러리 설치
 
 프로그램이 작동하는 데 필요한 모든 라이브러리를 한 번에 설치합니다.
 
 pip install -r requirements.txt
+
 3. 프로그램 실행
 
 이제 코드를 직접 실행해 볼 수 있습니다.
