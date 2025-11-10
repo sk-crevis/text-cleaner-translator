@@ -1,0 +1,22 @@
+# ==========================================================
+# Text Processor Service v7.9 에 필요한 라이브러리
+# 설치 명령어: pip install -r requirements.txt
+# ==========================================================
+
+# GUI 프레임워크 (Tkinter를 위한 부트스트랩 스타일)
+ttkbootstrap
+
+# 클립보드 제어 (텍스트 복사/붙여넣기)
+pyperclip
+
+# DeepL API 연동
+deepl
+
+# 핫키 제어
+keyboard
+
+# 시스템 트레이 아이콘 (pystray)
+pystray
+
+# 이미지 처리 (pystray 아이콘 생성에 사용)
+Pillow
